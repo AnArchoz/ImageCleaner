@@ -15,58 +15,74 @@ public class Controller {
 	private LinkedList<File> duplicateList = new LinkedList<File>();
 	private LinkedList<File> corruptList = new LinkedList<>();
 	private Map<String, File> fileMap = new TreeMap<>();
+	private int count = 0;
 
 	public void findDuplicatesAndCorruptions(File directory) throws NoSuchAlgorithmException {
 		byte[] fileData;
 
+
 		for (File file : directory.listFiles()) {
+			count++;
 			// Check if file is corrupted, return to next file in the loop otherwise
-			if (fileIsCorrupted(file)) {
-				corruptList.add(file);
+			if (file.isHidden()){
+				return;
+			}
+
+			if (file.isDirectory()){
+				findDuplicatesAndCorruptions(file);
 			} else {
 
-				//Buffer for the filedata
-				fileData = new byte[(int) file.length()];
+				if (fileIsCorrupted(file)) {
+					corruptList.add(file);
+				} else {
 
-				try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file))) {
-					//Write filedata to the buffer
-					stream.read(fileData);
+					//Buffer for the filedata
+					fileData = new byte[(int) file.length()];
 
-					//Create MD5-hash for the file
-					MessageDigest md = MessageDigest.getInstance("MD5");
-					md.update(fileData);
-					byte[] digest = md.digest();
+					try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(file))) {
+						//Write filedata to the buffer
+						stream.read(fileData);
 
-					StringBuilder hashResult = new StringBuilder();
-					for (byte b : digest) {
-						hashResult.append(String.format("%02x", b));
+						//Create MD5-hash for the file
+						MessageDigest md = MessageDigest.getInstance("MD5");
+						md.update(fileData);
+						byte[] digest = md.digest();
+
+						StringBuilder hashResult = new StringBuilder();
+						for (byte b : digest) {
+							hashResult.append(String.format("%02x", b));
+						}
+
+						//Check if hash already exists in the map
+						File mapCheck = fileMap.get(hashResult.toString());
+
+						//If hash for this filedata exists it means This file is a duplicate
+						// and will be added to the duplicate list.
+						if (mapCheck == null) {
+							fileMap.put(hashResult.toString(), file);
+						} else {
+							duplicateList.add(file);
+						}
+
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
-
-					//Check if hash already exists in the map
-					File mapCheck = fileMap.get(hashResult.toString());
-
-					//If hash for this filedata exists it means This file is a duplicate
-					// and will be added to the duplicate list.
-
-					if (mapCheck == null) {
-						fileMap.put(hashResult.toString(), file);
-					} else {
-						duplicateList.add(file);
-					}
-
-				} catch (IOException e) {
-					e.printStackTrace();
 				}
+
+
 			}
 
 			System.out.println("counting: " + corruptList.size() + " corrupted files...\n" +
-					"and " + duplicateList.size() + "duplicate files...");
+					"and " + duplicateList.size() + " duplicate files...");
 
 		}
 
 		System.out.println(reportFindings());
 
+		for(int i = 0; i < duplicateList.size(); i++){
+			System.out.println(duplicateList.get(i).getName());
 
+		}
 	}
 
 	//Tries to generate an IOException for corrupted files, marking them as corrupted by returning true.
@@ -83,6 +99,8 @@ public class Controller {
 	private String reportFindings() {
 
 		return "Your folder contained " + corruptList.size() + " corrupted files. \n" +
-				"Your folder contained " + duplicateList.size() + " duplicate files.";
+				"Your folder contained " + duplicateList.size() + " duplicate files." +
+				count +" files  were looked at"
+				;
 	}
 }
