@@ -76,7 +76,6 @@ public class Controller {
 	}
 
 	//Deletes all duplicate and corrupted images.
-
 	private void delete() {
 		int counter = 0;
 
