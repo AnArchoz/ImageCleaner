@@ -5,7 +5,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		Controller controller = new Controller();
-		String folderPath = "C:\\Users\\Anto\\Desktop\\ImageCleanerTest";
+		String folderPath = "Your Folder To Analyze Here";
 
 		try {
 			long start = System.currentTimeMillis();
