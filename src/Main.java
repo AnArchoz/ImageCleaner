@@ -1,19 +1,18 @@
 import java.io.File;
-		import java.security.NoSuchAlgorithmException;
-import java.security.Timestamp;
+import java.security.NoSuchAlgorithmException;
 
 public class Main {
 
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		Controller controller = new Controller();
-		String folderPath = "C:\\Users\\Anto\\Desktop\\ImageCleanerTest";
+		String folderPath = "Your Folder To Be Searched Here";
 
 		try {
 			long start = System.currentTimeMillis();
 			controller.findDuplicatesAndCorruptions(new File(folderPath));
 			long end = System.currentTimeMillis();
 			System.out.println((end - start) / 1000.0 + " seconds.");
-		} catch (NoSuchAlgorithmException e){
+		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 	}
